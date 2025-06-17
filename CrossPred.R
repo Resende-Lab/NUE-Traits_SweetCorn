@@ -74,6 +74,7 @@ fm = BGLR::Multitrait(y=y,
 
 ## ---------- 3. Outcomes
 IndPred = data.frame(GenID = PhenoNa$vcfID,
+                     "R1.LN" = fm$ETAHat[,1],
                      "R3.LN" = fm$ETAHat[,2])
 
 
@@ -88,8 +89,10 @@ Plan = SimpleMating::planCross(TargetPop = PhenoNa$vcfID)
 
 ## ---------- 2. Crosses
 crossPlanAll = SimpleMating::getMPV(MatePlan = Plan,
-                                    Criterion = IndPred,
-                                    K = relMat)
+                                 Criterion = IndPred,
+                                 K = relMat,
+                                 Weights = c(1,1)) # weights for the traits
+head(crossPlanAll)
 
 # ---------- 3. Optimization
 MatePlan = SimpleMating::selectCrosses(data = crossPlanAll,
@@ -101,8 +104,8 @@ MatePlan = SimpleMating::selectCrosses(data = crossPlanAll,
 
 
 # # --------- 4. Saving
-
-MatePlan[[2]]
+ 
+MatePlan[[1]]
 
 #######--------------------------------
 ### 6. Prediction of crosses for hybrids created in the target population
@@ -115,13 +118,15 @@ allPar = unique(c(PlanHybrid$Parent1, PlanHybrid$Parent2))
 
 
 ## ---------- 2. Crosses
+IndPredR3 = IndPred[, c(1,3)]
+head(IndPredR3)
 crossPlan = SimpleMating::getMPV(MatePlan = PlanHybrid,
-                                 Criterion = IndPred,
+                                 Criterion = IndPredR3,
                                  K = relMat)
 
 
 ## ---------- 3. Plotting
-FinalHybrids = read.table("../data/HybridBLUEs", sep = ",", h=T)[,-c(2, 4,5)]
+FinalHybrids = read.table("../data/HybridBLUEs", sep = "", h=T)[,-c(2)]
 head(FinalHybrids)
 
 ## ----------  4. Loading pedigree
@@ -163,9 +168,9 @@ Sel = dfSel$Sel
 
 
 a = ggplot(dfSel, aes(K, Y)) + 
-  geom_point(aes(colour = factor(Sel)), size = 3) + 
-  scale_color_manual(values = c("#ACA4E2", "wheat")) + 
-  geom_vline(xintercept = -0.02, linetype = "dashed", color = "grey30", linewidth = 0.8) + 
+    geom_point(aes(colour = factor(Sel)), size = 3) + 
+    scale_color_manual(values = c("#ACA4E2", "wheat")) + 
+    geom_vline(xintercept = -0.02, linetype = "dashed", color = "grey30", linewidth = 0.8) + 
   
   theme(panel.grid = element_line(color = "grey90", size = 0.35, linetype = 2),
         panel.background = element_blank(),
@@ -185,15 +190,15 @@ a = ggplot(dfSel, aes(K, Y)) +
 # Create the plot
 
 
+colnames(CrossPred)
 
-
-b = ggplot(CrossPred, aes(x = Hy_R3.LN_BLUE, y = Y)) +
+b = ggplot(CrossPred, aes(x = R3.LN.BLUP, y = Y)) +
   geom_point(size = 3, alpha = 1, color =  "#ACA4E2") + 
   geom_smooth(method=lm, se=FALSE, linetype="dashed",
               color="grey30")+
   labs(
     title = " ",
-    x = "BLUEs",
+    x = "BLUPs",
     y = " "
   ) +
   theme(
@@ -205,7 +210,7 @@ b = ggplot(CrossPred, aes(x = Hy_R3.LN_BLUE, y = Y)) +
     axis.line = element_line(colour = "black", linewidth = 0.5, linetype = "solid"),
   ) +
   ylim(2.75, 3.4) +
-  xlim(3.25,4.75)
+  xlim(3.9,4.2)
 
 
 
@@ -215,7 +220,7 @@ b = ggplot(CrossPred, aes(x = Hy_R3.LN_BLUE, y = Y)) +
 
 jpeg("1.CrossPred3.jpeg", width = 18, height = 9, units = "cm", res = 300)
 ggpubr::ggarrange(a,b,  # list of plots
-                  labels = c('A|', 'B|'), # labels
+                  labels = c('A', 'B'), # labels
                   font.label = list(size = 16, 
                                     color = "black", family = "sans"),
                   label.x = 0,           # Horizontal position of labels
@@ -233,7 +238,7 @@ dev.off()
 
 tiff("1.CrossPred3.tiff", width = 18, height = 9, units = "cm", res = 300)
 ggpubr::ggarrange(a,b,  # list of plots
-                  labels = c('A|', 'B|'), # labels
+                  labels = c('A', 'B'), # labels
                   font.label = list(size = 16, 
                                     color = "black", family = "sans"),
                   label.x = 0,           # Horizontal position of labels
@@ -247,4 +252,4 @@ ggpubr::ggarrange(a,b,  # list of plots
 dev.off()
 
 
-
+cor(CrossPred$R3.LN.BLUP, CrossPred$Y, use = "complete")
