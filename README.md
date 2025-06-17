@@ -6,7 +6,7 @@ Repository with the data and scripts used in the paper: "Genomic strategies for 
 
 --------
 
-## data folder
+## Folder data/
 
 - Folder containing:
     - BLUEs for lines and hybrids
