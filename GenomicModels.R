@@ -28,7 +28,7 @@ PhenoLines = PhenoLines[order(PhenoLines$vcfID),]
 
 
 ### markers ~ 200k
-load("data/SNPmat200k.RData", verbose = T)
+load() # load the marker data for the SNPs
 
 MarkersLines = SNPdata
 
@@ -66,7 +66,7 @@ stopifnot(all(tolower(PhenoLines$vcfID) == tolower(rownames(MarkLines))))
 #######--------------------------------
 
 ##>>-----  SNPs
-load("data/SNP_Matrix_Hybrid.Rdata", verbose = T)
+load()# load the marker data for the hybrids
 
 ##>>-----  BLUEs
 PhenoHybrid = read.table("data/HybridBLUEs", h=T, sep="\t")
